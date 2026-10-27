@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "redaction-leftovers"
+version = "0.1.0"
+description = "Check PDFs for content that survives redaction, without printing that content."
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.9"
+authors = [{ name = "Daniel Hamelberg" }]
+dependencies = ["pypdf>=5.1,<7"]
+keywords = ["pdf", "redaction", "privacy", "foia", "document-security"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent",
+  "Topic :: Security",
+  "Topic :: Office/Business",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "ruff>=0.5", "pikepdf>=8"]
+
+[project.scripts]
+redaction-leftovers = "redaction_leftovers.cli:main"
+
+[project.urls]
+Source = "https://github.com/danielhamelberg/redaction-leftovers"
+Issues = "https://github.com/danielhamelberg/redaction-leftovers/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "BLE"]
+ignore = ["UP006", "UP007", "UP035"]
