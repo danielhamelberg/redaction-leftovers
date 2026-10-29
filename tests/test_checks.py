@@ -119,6 +119,22 @@ def test_author_metadata_is_reported_but_software_keys_are_not():
     assert finding.details == {"keys": ["Author"]}
 
 
+def test_xmp_packet_is_reported_as_low():
+    from pypdf.generic import DecodedStreamObject, NameObject
+
+    writer = pdfs.build([pdfs.text_ops("Body")])
+    packet = DecodedStreamObject()
+    packet.set_data(b"<x:xmpmeta xmlns:x='adobe:ns:meta/'></x:xmpmeta>")
+    packet.update({NameObject("/Type"): NameObject("/Metadata"), NameObject("/Subtype"): NameObject("/XML")})
+    writer._root_object[NameObject("/Metadata")] = writer._add_object(packet)
+    [finding] = checks(pdfs.to_bytes(writer))["xmp-metadata"]
+    assert finding.severity is Severity.LOW
+
+
+def test_no_xmp_packet_is_not_reported():
+    assert "xmp-metadata" not in checks(pdfs.plain())
+
+
 def test_not_a_pdf_raises():
     with pytest.raises(ScanError):
         scan_bytes(b"hello")

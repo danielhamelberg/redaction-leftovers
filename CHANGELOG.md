@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0 - 2026-10-27
+## 0.1.0 - 2026-10-29
 
 First release. Checks: earlier-revision, unapplied-redaction, invisible-text, text-outside-page,
 annotation-text, form-values, embedded-files, outline, metadata, xmp-metadata. Text and JSON output,

@@ -4,11 +4,16 @@ A command-line check for PDFs that are about to be published or shared after red
 for places where removed or hidden content is still in the file, and reports **where and how much,
 never the content itself**, so the report is safe to paste into a ticket.
 
-Its main check is one that the widely used [Free Law Project X-Ray](https://github.com/freelawproject/x-ray)
-does not cover ([x-ray#1](https://github.com/freelawproject/x-ray/issues/1), open since 2020): text
-that survives in an **earlier saved revision**. Many editors save changes as an incremental update,
-which appends the new version and keeps the old bytes. Cutting the file at an earlier `%%EOF` marker
-gives the old version back, including whatever the "redaction" removed.
+Its main check is for text that survives in an **earlier saved revision**. Many editors save changes
+as an incremental update, which appends the new version and keeps the old bytes. Cutting the file at
+an earlier `%%EOF` marker gives the old version back, including whatever the "redaction" removed.
+The widely used [Free Law Project X-Ray](https://github.com/freelawproject/x-ray) does not check
+earlier revisions ([x-ray#1](https://github.com/freelawproject/x-ray/issues/1), open since 2020).
+[before-you-send](https://github.com/Waiga/before-you-send) reports that earlier revisions exist;
+this tool goes one step further and compares the words of each earlier revision with the final
+version, so it reports only revisions that hold text the final version no longer shows, and on which
+pages. In before-you-send's own measurements on published PDFs, most retained revisions were
+harmless structural history, so that comparison is what separates a real leak from noise.
 
 ## Quickstart
 
@@ -50,13 +55,16 @@ make the exit code non-zero.
 Exit codes: `0` nothing at or above `--fail-on` (default `medium`), `1` findings at or above it,
 `2` a file could not be read (not a PDF, damaged, or encrypted with a password).
 
-Each check has tests that build a PDF exhibiting the problem and assert the finding, its count and
-its pages, plus a test that no report contains any of the document's words. See [`tests/`](tests).
+Each check has at least one test that builds a PDF exhibiting the problem and asserts the finding,
+and several also have a near-miss test that must not fire. Further tests check that neither the JSON
+findings nor the text output contain any of the document's words. See [`tests/`](tests).
 
 ## What it does not check
 
-- **Text covered by a drawn rectangle or highlight in the current version.** That is X-Ray's job;
-  run both. [before-you-send](https://github.com/Waiga/before-you-send) also covers it.
+- **Text covered by a drawn rectangle or highlight in the current version.** X-Ray and
+  before-you-send both check this; run one of them as well. before-you-send also covers several
+  cases this tool does not, such as text drawn in the background colour, clipped text and hidden
+  layers.
 - **Anything inside images.** Text in a scanned image is not read.
 - **Removed images or drawings in earlier revisions.** The revision check compares words only.
 - Positions are the start of each text-showing operation, not each glyph, so a run that starts just
@@ -66,7 +74,8 @@ its pages, plus a test that no report contains any of the document's words. See 
 A clean result means these checks found nothing. It is not proof that a document is safe to publish.
 For most findings the fix is to redact with a tool that removes content, then write a full new copy
 of the file instead of an incremental update, and run this check again. `qpdf in.pdf out.pdf` writes
-such a copy; a test confirms that it clears the `earlier-revision` finding on the demo file.
+such a copy; a test confirms that a full rewrite through qpdf (via its Python binding, pikepdf) clears
+the `earlier-revision` finding on the demo file.
 
 ## Why another tool
 

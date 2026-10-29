@@ -19,7 +19,7 @@ ruff check . && ruff format --check .
 
 Ground rules:
 
-- Every check needs a test that builds a PDF showing the problem and one showing a near miss that
+- A new check needs a test that builds a PDF showing the problem and one showing a near miss that
   must not fire.
 - Reports describe location and size only. A change that makes the tool print document text,
   metadata values or form values will not be merged; `tests/test_checks.py` enforces this.
